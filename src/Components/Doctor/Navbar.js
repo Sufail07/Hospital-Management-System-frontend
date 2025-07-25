@@ -21,6 +21,9 @@ function DoctorNavbar() {
     <div className="bg-light border-end vh-100 p-3" style={{ width: '250px' }}>
       <h5 className="mb-4">Doctor Menu</h5>
       <ul className="nav flex-column">
+      <li className="nav-item mb-2">
+          <Link to="/doctor/dashboard" className="nav-link">Dashboard</Link>
+        </li>
         <li className="nav-item mb-2">
           <Link to="/doctor/appointments" className="nav-link">Appointments</Link>
         </li>
