@@ -37,7 +37,7 @@ function AdminDashboard() {
     const fetchDashboardStats = async () => {
       const token = localStorage.getItem('access');
       try {
-        const response = await axiosInstance.get('http://127.0.0.1:8000/api/admin/dashboard/stats/', {
+        const response = await axiosInstance.get('https://sufail07.pythonanywhere.com/api/admin/dashboard/stats/', {
           headers: {
             Authorization: `Bearer ${token}`
           },
