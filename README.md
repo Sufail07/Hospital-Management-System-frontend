@@ -65,6 +65,8 @@ hospital-frontend/
 └── README.md
 ```
 
+Deployed at - https://hospital-management-system-frontend-lac.vercel.app/
+
 
 ### ✨ Developed by Sufail Salim :)
 
