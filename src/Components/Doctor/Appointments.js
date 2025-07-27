@@ -68,7 +68,7 @@ function DoctorAppointments() {
     try {
       const token = localStorage.getItem('access');
       console.log(selectedAppointment)
-      await axiosInstance.post('http://127.0.0.1:8000/api/doctors/prescription/', {
+      await axiosInstance.post('https://sufail07.pythonanywhere.com/api/doctors/prescription/', {
         appointment: selectedAppointment.id,
         medications: medications.map(med => ({
           name: med.name.trim(),
