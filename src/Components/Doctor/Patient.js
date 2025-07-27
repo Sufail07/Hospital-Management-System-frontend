@@ -46,7 +46,7 @@ function ViewPatients() {
 
   const fetchMedicalHistory = async (patient) => {
     try {
-      const res = await axiosInstance.get(`http://127.0.0.1:8000/api/doctors/medicalhistory/${patient.id}/patient-history`, {
+      const res = await axiosInstance.get(`https://sufail07.pythonanywhere.com/api/doctors/medicalhistory/${patient.id}/patient-history`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem('access')}`
         }
