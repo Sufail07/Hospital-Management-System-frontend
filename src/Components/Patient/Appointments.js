@@ -58,12 +58,6 @@ function PatientAppointments() {
     const handleSubmit = async (e) => {
       e.preventDefault();
 
-      console.log('=== FORM SUBMISSION DEBUG ===');
-      console.log('selectedDoctor (raw):', selectedDoctor, typeof selectedDoctor);
-      console.log('appointmentTime (raw):', appointmentTime, typeof appointmentTime);
-      console.log('selectedDoctor empty check:', !selectedDoctor);
-      console.log('appointmentTime empty check:', !appointmentTime);
-
       if(!selectedDoctor || !appointmentTime) {
         toast.warning("Please fill in the fields", {
           position: 'top-center',
@@ -78,9 +72,9 @@ function PatientAppointments() {
           appointment_time: appointmentTime,
         };
 
-        console.log("Sending to server")
-        console.log('Payload: ', JSON.stringify(payload, null, 2))
-        console.log('Token exists: ', !!token)
+        // console.log("Sending to server")
+        // console.log('Payload: ', JSON.stringify(payload, null, 2))
+        // console.log('Token exists: ', !!token)
         
 
         const response = await axiosInstance.post('https://sufail07.pythonanywhere.com/api/patients/appointments/', {
