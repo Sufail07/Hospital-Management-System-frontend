@@ -252,10 +252,10 @@ function PatientAppointments() {
               className="form-select"
               value={selectedDoctor}
               onChange={(e) => {
-                console.log('=== DOCTOR SELECTION ===');
-                console.log('Selected value:', e.target.value);
-                console.log('Selected value type:', typeof e.target.value);
-                console.log('Available doctors:', doctors.map(d => ({ id: d.user_id, name: `${d.user?.first_name} ${d.user?.last_name}` })));
+                // console.log('=== DOCTOR SELECTION ===');
+                // console.log('Selected value:', e.target.value);
+                // console.log('Selected value type:', typeof e.target.value);
+                // console.log('Available doctors:', doctors.map(d => ({ id: d.user_id, name: `${d.user?.first_name} ${d.user?.last_name}` })));
                 setSelectedDoctor(e.target.value);
               }}
             >
