@@ -15,7 +15,7 @@ function DoctorDashboard() {
     const fetchTodayAppointments = async () => {
       const token = localStorage.getItem('access');
       try {
-        const response = await axiosInstance.get(`https://sufail07.pythonanywhere.com/api/doctors/appointments/?${formattedToday}/`, {
+        const response = await axiosInstance.get(`https://sufail07.pythonanywhere.com/api/doctors/appointments/?date=${formattedToday}/`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
