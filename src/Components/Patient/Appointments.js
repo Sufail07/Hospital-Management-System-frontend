@@ -238,116 +238,208 @@ function PatientAppointments() {
     
 
   return (
-    <>
-     <div className="d-flex">
-      <Navbar />
-      <div className="flex-grow-1 p-5">
-        <h3 className="mb-4">My Appointments</h3>
-
-        <form onSubmit={handleSubmit} className="mb-5">
-          <h5>Book a New Appointment</h5>
-          <div className="mb-3">
-            <label className="form-label">Select Doctor</label>
-            <select
-              className="form-select"
-              value={selectedDoctor}
-              onChange={(e) => {
-                // console.log('=== DOCTOR SELECTION ===');
-                // console.log('Selected value:', e.target.value);
-                // console.log('Selected value type:', typeof e.target.value);
-                // console.log('Available doctors:', doctors.map(d => ({ id: d.user_id, name: `${d.user?.first_name} ${d.user?.last_name}` })));
-                setSelectedDoctor(e.target.value);
-              }}
-            >
-              <option value="">-- Choose Doctor --</option>
-              {doctors.map((doc) => (
-                <option key={doc.id} value={String(doc.id)}>
-                  Dr.{doc.user?.first_name} {doc.user?.last_name} - {doc.specialization}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="mb-3">
-            <label className="form-label">Appointment Time</label>
-            <input
-              type="datetime-local"
-              className="form-control"
-              value={appointmentTime}
-              onChange={(e) => setAppointmentTime(e.target.value)}
-            />
-          </div>
-
-          <button className="btn btn-primary">Create Appointment</button>
-        </form>
-
-        <hr />
-
-        <h5>Upcoming Appointments</h5>
-        {appointments.length === 0 ? (
-          <p>No appointments found.</p>
-        ) : (
-          <table className="table table-bordered mt-3">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Doctor</th>
-                <th>Date</th>
-                <th>Time</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {appointments.map((appt, index) => (
-                <tr key={appt.id}>
-                  <td>{index + 1}</td>
-                  <td>
-                    {appt.doctor}
-                  </td>
-                  <td>{new Date(appt.scheduled_at).toLocaleDateString()}</td>
-                  <td>{new Date(appt.scheduled_at).toLocaleTimeString()}</td>
-                  <td>{appt.status}</td>
-                  <td>
-                    <button className='btn btn-primary btn-sm' onClick={()=>{openRescheduleModal(appt.id, appt.scheduled_at)}}>Reschedule</button>
-                    <button className='btn btn-danger btn-sm' onClick={()=>{cancelAppointment(appt.id)}}>Cancel</button>
-
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+    <div className="d-flex" style={{ minHeight: '100vh' }}>
+      {/* Sidebar */}
+      <div style={{ width: '260px', flexShrink: 0 }}>
+        <Navbar />
       </div>
-      {showRescheduleModal && (
-      <div className="modal show d-block" tabIndex="-1" role="dialog">
-        <div className="modal-dialog" role="document">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">Reschedule Appointment</h5>
-              <button type="button" className="btn-close" onClick={() => setShowRescheduleModal(false)}></button>
+
+      {/* Main Content */}
+      <div className="flex-grow-1" style={{ padding: 'var(--space-8)', background: 'var(--color-gray-50)' }}>
+        {/* Header */}
+        <div style={{ marginBottom: 'var(--space-8)' }}>
+          <h1 style={{ 
+            fontSize: 'var(--text-3xl)', 
+            fontWeight: 'var(--font-semibold)',
+            marginBottom: 'var(--space-2)'
+          }}>
+            Appointments
+          </h1>
+          <p style={{ color: 'var(--color-gray-600)', margin: 0 }}>
+            Manage your appointments and schedule visits with doctors
+          </p>
+        </div>
+
+        {/* Two Column Layout */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 'var(--space-6)' }}>
+          {/* Book Appointment Form */}
+          <div className="card">
+            <div className="card-header">
+              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-semibold)', margin: 0 }}>
+                Book New Appointment
+              </h3>
             </div>
-            <div className="modal-body">
-              <label className="form-label">New Date & Time</label>
-              <input
-                type="datetime-local"
-                className="form-control"
-                value={newRescheduleTime}
-                onChange={(e) => setNewRescheduleTime(e.target.value)}
-              />
+            <div className="card-body">
+              <form onSubmit={handleSubmit}>
+                <div className="form-group">
+                  <label className="form-label">Select Doctor</label>
+                  <select
+                    className="form-select"
+                    value={selectedDoctor}
+                    onChange={(e) => setSelectedDoctor(e.target.value)}
+                    required
+                  >
+                    <option value="">Choose a doctor...</option>
+                    {doctors.map((doc) => (
+                      <option key={doc.id} value={String(doc.id)}>
+                        Dr. {doc.user?.first_name} {doc.user?.last_name} - {doc.specialization}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label className="form-label">Date & Time</label>
+                  <input
+                    type="datetime-local"
+                    className="form-control"
+                    value={appointmentTime}
+                    onChange={(e) => setAppointmentTime(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <button type="submit" className="btn btn-primary btn-block">
+                  Schedule Appointment
+                </button>
+              </form>
             </div>
-            <div className="modal-footer">
-              <button className="btn btn-secondary" onClick={() => setShowRescheduleModal(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={submitReschedule}>Submit</button>
+          </div>
+
+          {/* Appointments List */}
+          <div className="card">
+            <div className="card-header">
+              <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-semibold)', margin: 0 }}>
+                Your Appointments
+              </h3>
+            </div>
+            <div className="card-body" style={{ padding: 0 }}>
+              {appointments.length === 0 ? (
+                <div style={{ 
+                  padding: 'var(--space-8)', 
+                  textAlign: 'center',
+                  color: 'var(--color-gray-500)'
+                }}>
+                  <svg width="64" height="64" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" style={{ margin: '0 auto var(--space-4)', opacity: 0.3 }}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-medium)', marginBottom: 'var(--space-2)' }}>
+                    No appointments yet
+                  </p>
+                  <p style={{ fontSize: 'var(--text-sm)', margin: 0 }}>
+                    Book your first appointment using the form
+                  </p>
+                </div>
+              ) : (
+                <div className="table-container" style={{ border: 'none', boxShadow: 'none', borderRadius: 0 }}>
+                  <table className="table">
+                    <thead>
+                      <tr>
+                        <th>Doctor</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {appointments.map((appt) => (
+                        <tr key={appt.id}>
+                          <td>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                              <div style={{
+                                width: '32px',
+                                height: '32px',
+                                borderRadius: 'var(--radius-full)',
+                                background: 'var(--color-primary)',
+                                color: 'white',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                fontSize: 'var(--text-sm)',
+                                fontWeight: 'var(--font-semibold)'
+                              }}>
+                                {appt.doctor?.charAt(0) || 'D'}
+                              </div>
+                              <span style={{ fontWeight: 'var(--font-medium)' }}>
+                                {appt.doctor}
+                              </span>
+                            </div>
+                          </td>
+                          <td style={{ color: 'var(--color-gray-700)' }}>
+                            {new Date(appt.scheduled_at).toLocaleDateString()}
+                          </td>
+                          <td style={{ color: 'var(--color-gray-700)' }}>
+                            {new Date(appt.scheduled_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </td>
+                          <td>
+                            <span className={`badge ${
+                              appt.status === 'scheduled' ? 'badge-primary' : 
+                              appt.status === 'completed' ? 'badge-success' : 
+                              'badge-gray'
+                            }`}>
+                              {appt.status}
+                            </span>
+                          </td>
+                          <td>
+                            <div className="table-actions">
+                              <button 
+                                className="btn btn-sm btn-primary"
+                                onClick={() => openRescheduleModal(appt.id, appt.scheduled_at)}
+                              >
+                                Reschedule
+                              </button>
+                              <button 
+                                className="btn btn-sm btn-danger"
+                                onClick={() => cancelAppointment(appt.id)}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-    )}
 
+      {/* Reschedule Modal */}
+      {showRescheduleModal && (
+        <div className="modal">
+          <div className="modal-dialog">
+            <div className="modal-header">
+              <h3 className="modal-title">Reschedule Appointment</h3>
+              <button type="button" className="btn-close" onClick={() => setShowRescheduleModal(false)}></button>
+            </div>
+            <div className="modal-body">
+              <div className="form-group">
+                <label className="form-label">New Date & Time</label>
+                <input
+                  type="datetime-local"
+                  className="form-control"
+                  value={newRescheduleTime}
+                  onChange={(e) => setNewRescheduleTime(e.target.value)}
+                />
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn btn-secondary" onClick={() => setShowRescheduleModal(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-primary" onClick={submitReschedule}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-    </>
-  )
+  );
 }
 
 export default PatientAppointments;

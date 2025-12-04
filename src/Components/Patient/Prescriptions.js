@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import PatientNavbar from './Navbar';
 import Modal from 'react-modal';
 import { toast } from 'react-toastify';
@@ -11,28 +10,6 @@ function Prescriptions() {
     const [prescriptions, setPrescriptions] = useState([]);
     const [selectedPrescription, setSelectedPrescription] = useState(null);
     const [modalOpen, setModalOpen] = useState(false);
-
-
-    const customStyles = {
-    content: {
-        top: '50%',
-        left: '50%',
-        right: 'auto',
-        bottom: 'auto',
-        marginRight: '-50%',
-        transform: 'translate(-50%, -50%)',
-        width: '500px',
-        borderRadius: '10px',
-        backgroundColor: '#fff',
-        color: '#000',
-        padding: '20px',
-        zIndex: 1050,
-    },
-    overlay: {
-        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-        zIndex: 1040,
-    }
-    };
 
     useEffect(() => {
         fetchPrescriptions();
@@ -46,10 +23,8 @@ function Prescriptions() {
                     Authorization: `Bearer ${access}`
                 }
             });
-            console.log('Prescriptions: ', response.data);
             setPrescriptions(response.data);
         } catch (error) {
-            console.log("Failed to fetch prescriptions");
             toast.error("Failed to fetch prescriptions", {
                 position: 'top-center',
                 theme: 'colored'
@@ -72,107 +47,181 @@ function Prescriptions() {
             });
             window.location.href = response.data.checkout_url;
         } catch (error) {
-            console.log("Stripe session error: ", error);
             toast.error('Failed to initiate payment');
         }
     };
 
-
     return (
-      <div className="d-flex">
-      <PatientNavbar />
-      
-      <div className="container-fluid p-4">
-          <h2 className="mb-4">My Prescriptions</h2>
-
-          <div className="table-responsive">
-              <table className="table table-bordered table-striped">
-                  <thead className="table-light">
-                      <tr>
-                          <th>Doctor</th>
-                          <th>Date</th>
-                          <th>Status</th>
-                          <th>Action</th>
-                      </tr>
-                  </thead>
-                  <tbody>
-                      {prescriptions.map((prescription) => (
-                          <tr key={prescription.id}>
-                              <td>{prescription.doctor_name}</td>
-                              <td>{new Date(prescription.created_at).toLocaleString()}</td>
-                              <td>{prescription.is_paid ? 'Paid' : 'Pending Payment'}</td>
-                              <td>
-                                  <div className="d-flex gap-2">
-                                      <button
-                                          className={`btn ${prescription.is_paid ? 'btn-primary disabled' : 'btn-primary'}`}
-                                          onClick={() => handlePay(prescription.id)}
-                                      >
-                                          Pay
-                                      </button>
-                                      <button
-                                          className={`btn ${
-                                              prescription.is_paid
-                                                  ? 'btn-success'
-                                                  : 'btn-secondary disabled'
-                                          }`}
-                                          onClick={() => {
-                                              if (prescription.is_paid) {
-                                                  handleView(prescription);
-                                              } else {
-                                                  toast.warning('Please complete payment to view the prescription', {
-                                                      position: 'top-center',
-                                                      theme: 'colored'
-                                                  });
-                                              }
-                                          }}
-                                          disabled={!prescription.is_paid}
-                                      >
-                                          View
-                                      </button>
-                                  </div>
-                              </td>
-                          </tr>
-                      ))}
-                  </tbody>
-              </table>
+      <div className="d-flex" style={{ minHeight: '100vh' }}>
+        <div style={{ width: '260px', flexShrink: 0 }}>
+          <PatientNavbar />
+        </div>
+        
+        <div className="flex-grow-1" style={{ padding: 'var(--space-8)', background: 'var(--color-gray-50)' }}>
+          {/* Header */}
+          <div style={{ marginBottom: 'var(--space-8)' }}>
+            <h1 style={{ 
+              fontSize: 'var(--text-3xl)', 
+              fontWeight: 'var(--font-semibold)',
+              marginBottom: 'var(--space-2)'
+            }}>
+              Prescriptions
+            </h1>
+            <p style={{ color: 'var(--color-gray-600)', margin: 0 }}>
+              View and manage your prescriptions
+            </p>
           </div>
 
-          <Modal
-              isOpen={modalOpen}
-              onRequestClose={() => setModalOpen(false)}
-              style={customStyles}
-              overlayClassName="modal-backdrop show d-block"
-          >
-              <div className="modal-content p-4">
-                  <h5 className="modal-title mb-3">Prescription Details</h5>
-                  {selectedPrescription && (
-                      <div>
-                          <p><strong>Doctor:</strong> {selectedPrescription.doctor_name}</p>
-                          <p><strong>Date:</strong> {new Date(selectedPrescription.created_at).toLocaleString()}</p>
-                          <div>
-                              <strong>Medications:</strong>
-                              <ul>
-                                  {JSON.parse(selectedPrescription.medications).map((med, index) => (
-                                      <li key={index}>
-                                          <strong>{med.name}</strong> – {med.dosage} – ₹{med.cost}
-                                      </li>
-                                  ))}
-                              </ul>
-                          </div>
-                      </div>
-                  )}
-                  <div className="mt-3 text-end">
-                      <button
-                          onClick={() => setModalOpen(false)}
-                          className="btn btn-secondary"
-                      >
-                          Close
-                      </button>
-                  </div>
+          {prescriptions.length === 0 ? (
+            <div className="card">
+              <div className="card-body" style={{ padding: 'var(--space-8)', textAlign: 'center' }}>
+                <svg width="64" height="64" fill="none" stroke="currentColor" strokeWidth="1.5" viewBox="0 0 24 24" style={{ margin: '0 auto var(--space-4)', opacity: 0.3 }}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                </svg>
+                <p style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-medium)', marginBottom: 'var(--space-2)', color: 'var(--color-gray-500)' }}>
+                  No prescriptions yet
+                </p>
+                <p style={{ fontSize: 'var(--text-sm)', margin: 0, color: 'var(--color-gray-500)' }}>
+                  Your prescriptions will appear here
+                </p>
               </div>
-          </Modal>
+            </div>
+          ) : (
+            <div style={{ display: 'grid', gap: 'var(--space-6)' }}>
+              {prescriptions.map((prescription) => (
+                <div key={prescription.id} className="card">
+                  <div className="card-body">
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 'var(--space-4)' }}>
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)', marginBottom: 'var(--space-2)' }}>
+                          <div style={{
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: 'var(--radius-full)',
+                            background: '#FEF3C7',
+                            color: 'var(--color-warning)',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                          }}>
+                            <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 'var(--font-semibold)', margin: 0 }}>
+                              Dr. {prescription.doctor_name}
+                            </h3>
+                            <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-600)', margin: 0 }}>
+                              {new Date(prescription.created_at).toLocaleDateString()}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                      <span className={`badge ${prescription.is_paid ? 'badge-success' : 'badge-warning'}`}>
+                        {prescription.is_paid ? 'Paid' : 'Pending Payment'}
+                      </span>
+                    </div>
+
+                    <div className="table-actions" style={{ justifyContent: 'flex-start' }}>
+                      {!prescription.is_paid && (
+                        <button
+                          className="btn btn-primary"
+                          onClick={() => handlePay(prescription.id)}
+                        >
+                          Pay Now
+                        </button>
+                      )}
+                      <button
+                        className={`btn ${prescription.is_paid ? 'btn-primary' : 'btn-secondary'}`}
+                        onClick={() => {
+                          if (prescription.is_paid) {
+                            handleView(prescription);
+                          } else {
+                            toast.warning('Please complete payment to view the prescription', {
+                              position: 'top-center',
+                              theme: 'colored'
+                            });
+                          }
+                        }}
+                disabled={!prescription.is_paid}
+                      >
+                        View Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Modal */}
+          {modalOpen && (
+            <div className="modal" onClick={() => setModalOpen(false)}>
+              <div className="modal-dialog" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-header">
+                  <h3 className="modal-title">Prescription Details</h3>
+                  <button type="button" className="btn-close" onClick={() => setModalOpen(false)}></button>
+                </div>
+                <div className="modal-body">
+                  {selectedPrescription && (
+                    <div>
+                      <div style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--color-gray-200)' }}>
+                        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-600)', marginBottom: 'var(--space-1)' }}>
+                          Doctor
+                        </p>
+                        <p style={{ fontSize: 'var(--text-base)', fontWeight: 'var(--font-medium)', margin: 0 }}>
+                          Dr. {selectedPrescription.doctor_name}
+                        </p>
+                      </div>
+
+                      <div style={{ marginBottom: 'var(--space-4)', paddingBottom: 'var(--space-4)', borderBottom: '1px solid var(--color-gray-200)' }}>
+                        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-600)', marginBottom: 'var(--space-1)' }}>
+                          Date
+                        </p>
+                        <p style={{ fontSize: 'var(--text-base)', fontWeight: 'var(--font-medium)', margin: 0 }}>
+                          {new Date(selectedPrescription.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      <div>
+                        <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-600)', marginBottom: 'var(--space-3)' }}>
+                          Medications
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
+                          {JSON.parse(selectedPrescription.medications).map((med, index) => (
+                            <div key={index} style={{ 
+                              padding: 'var(--space-3)', 
+                              background: 'var(--color-gray-50)', 
+                              borderRadius: 'var(--radius-md)',
+                              border: '1px solid var(--color-gray-200)'
+                            }}>
+                              <p style={{ fontWeight: 'var(--font-semibold)', marginBottom: 'var(--space-1)', color: 'var(--color-gray-900)' }}>
+                                {med.name}
+                              </p>
+                              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-600)', marginBottom: 'var(--space-1)' }}>
+                                Dosage: {med.dosage}
+                              </p>
+                              <p style={{ fontSize: 'var(--text-sm)', color: 'var(--color-gray-900)', fontWeight: 'var(--font-medium)', margin: 0 }}>
+                                Cost: ₹{med.cost}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+                <div className="modal-footer">
+                  <button onClick={() => setModalOpen(false)} className="btn btn-secondary">
+                    Close
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
-  </div>
     );
 }
 
